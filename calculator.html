@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🧮 電卓 - ひまつぶしと学びの庭</title>
+<style>
+body { text-align: center; font-family: "Noto Sans JP"; background: #e8f5e9; }
+h1 { color: #388e3c; }
+input {
+  width: 200px; font-size: 1.2em; text-align: right; margin-bottom: 10px;
+}
+button {
+  width: 50px; height: 50px; margin: 5px; font-size: 1.1em;
+  border: none; border-radius: 8px; background: white; cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+  <h1>🧮 電卓</h1>
+  <input id="display" type="text" readonly><br>
+  <div id="keys"></div>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+
+<script>
+const keys = ['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+','C'];
+const container = document.getElementById('keys');
+keys.forEach(k => {
+  const b = document.createElement('button');
+  b.textContent = k;
+  b.onclick = () => press(k);
+  container.appendChild(b);
+});
+function press(k) {
+  const d = document.getElementById('display');
+  if (k === '=') d.value = eval(d.value || 0);
+  else if (k === 'C') d.value = '';
+  else d.value += k;
+}
+</script>
+</body>
+</html>
