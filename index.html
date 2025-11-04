@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひまつぶしと学びの庭</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Noto Sans JP", sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #fffde7);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  header {
+    background: #4caf50;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 1.8em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  button {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    padding: 25px 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  button:hover {
+    transform: scale(1.05);
+    background: #e8f5e9;
+  }
+  footer {
+    background: #c8e6c9;
+    text-align: center;
+    padding: 10px;
+    font-size: 0.9em;
+    color: #2e7d32;
+  }
+</style>
+</head>
+<body>
+  <header>🌱 ひまつぶしと学びの庭</header>
+
+  <main>
+    <button onclick="openTool('breathe.html')">🫁 呼吸エクササイズ</button>
+    <button onclick="openTool('coin.html')">🪙 コイントス</button>
+    <button onclick="openTool('spinner.html')">🌀 スピナー</button>
+    <button onclick="openTool('dice.html')">🎲 サイコロ</button>
+    <button onclick="openTool('metronome.html')">🎵 メトロノーム</button>
+    <button onclick="openTool('color.html')">🎨 カラー選択</button>
+    <button onclick="openTool('calculator.html')">🧮 電卓</button>
+    <button onclick="openTool('trivia.html')">💡 豆知識</button>
+    <button onclick="openTool('today.html')">📅 今日はなんの日</button>
+    <button onclick="openTool('memory.html')">🧠 記憶力ゲーム</button>
+    <button onclick="openTool('snake.html')">🐍 ヘビ</button>
+    <button onclick="openTool('pacman.html')">👾 パックマン</button>
+    <button onclick="openTool('tictactoe.html')">⭕ 三目並べ</button>
+    <button onclick="openTool('solitaire.html')">🃏 ソリティア</button>
+    <button onclick="openTool('animal.html')">🐾 動物の鳴き声</button>
+    <button onclick="openTool('emoji.html')">😄 絵文字ミックス</button>
+    <button onclick="openTool('earthday.html')">🌍 アースデー動物診断</button>
+  </main>
+
+  <footer>
+    © 2025 ひまつぶしと学びの庭
+  </footer>
+
+  <script>
+    function openTool(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>
