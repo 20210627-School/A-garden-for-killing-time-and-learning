@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>❌⭕ 三目並べ - ひまつぶしと学びの庭</title>
+<style>
+body { text-align: center; font-family: "Noto Sans JP"; background: #f3e5f5; }
+#board { display: grid; grid-template-columns: repeat(3,100px); gap: 5px; margin: 20px auto; }
+.cell {
+  width: 100px; height: 100px; font-size: 2em; background: #fff;
+  border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  display: flex; justify-content: center; align-items: center; cursor: pointer;
+}
+</style>
+</head>
+<body>
+  <h1>❌⭕ 三目並べ</h1>
+  <div id="board"></div>
+  <p id="msg">プレイヤー❌の番</p>
+  <button onclick="reset()">🔄 リセット</button><br><br>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+<script>
+let turn="X";
+const board=document.getElementById("board");
+const msg=document.getElementById("msg");
+let cells=[];
+function setup(){
+  board.innerHTML="";
+  cells=[];
+  for(let i=0;i<9;i++){
+    const c=document.createElement("div");
+    c.className="cell";
+    c.onclick=()=>move(c,i);
+    board.appendChild(c);
+    cells.push("");
+  }
+}
+function move(c,i){
+  if(cells[i]!=="")return;
+  cells[i]=turn;
+  c.textContent=turn;
+  if(check(turn)){ msg.textContent=turn+"の勝ち！"; return;}
+  turn=turn==="X"?"O":"X";
+  msg.textContent="プレイヤー"+turn+"の番";
+}
+function check(p){
+  const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  return lines.some(l=>l.every(i=>cells[i]===p));
+}
+function reset(){ turn="X"; msg.textContent="プレイヤー❌の番"; setup(); }
+setup();
+</script>
+</body>
+</html>
