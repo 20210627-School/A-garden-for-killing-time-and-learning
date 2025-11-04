@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>💡 豆知識 - ひまつぶしと学びの庭</title>
+<style>
+body { text-align: center; font-family: "Noto Sans JP"; background: #fff3e0; }
+h1 { color: #ef6c00; }
+#factBox {
+  margin: 40px auto; max-width: 500px; background: white;
+  border-radius: 15px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+button {
+  background: #fff8e1; border: none; padding: 10px 20px;
+  border-radius: 10px; cursor: pointer; font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+  <h1>💡 豆知識</h1>
+  <div id="factBox">クリックで豆知識を表示！</div>
+  <button onclick="newFact()">🔄 もう一度</button><br><br>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+
+<script>
+const facts = [
+  "ハチは人の顔を見分けることができる。",
+  "オウムはリズムに合わせて踊ることができる唯一の動物。",
+  "ネコのゴロゴロ音は骨の回復を促す効果があると言われている。",
+  "コーヒーはもともと『食べる豆』だった。",
+  "ナマケモノは泳ぐのが意外と速い（時速約4km！）。"
+];
+function newFact() {
+  const f = facts[Math.floor(Math.random() * facts.length)];
+  document.getElementById('factBox').textContent = f;
+}
+</script>
+</body>
+</html>
