@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🪞 鏡うつし文字 - ひまつぶしと学びの庭</title>
+<style>
+body { text-align: center; font-family: "Noto Sans JP"; background: #fce4ec; }
+textarea { width: 300px; height: 100px; border-radius: 10px; font-size: 1em; padding: 10px; }
+#result { margin-top: 20px; font-size: 1.2em; transform: scaleX(-1); }
+button { border: none; background: #fff; padding: 10px 20px; border-radius: 10px;
+  cursor: pointer; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>🪞 鏡うつし文字</h1>
+  <textarea id="text" placeholder="文字を入力してね！"></textarea><br>
+  <button onclick="mirror()">🔄 鏡うつし</button>
+  <div id="result"></div><br>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+<script>
+function mirror(){
+  const t=document.getElementById("text").value;
+  document.getElementById("result").textContent=t.split("").reverse().join("");
+}
+</script>
+</body>
+</html>
