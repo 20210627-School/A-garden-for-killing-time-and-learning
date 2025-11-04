@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🎲 サイコロ - ひまつぶしと学びの庭</title>
+<style>
+body { font-family: "Noto Sans JP"; text-align: center; background: #fff8e1; }
+h1 { color: #ff9800; }
+button {
+  background: #fff; border: none; border-radius: 12px; padding: 15px 25px;
+  font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+#dice { font-size: 100px; margin: 40px; }
+</style>
+</head>
+<body>
+  <h1>🎲 サイコロ</h1>
+  <div id="dice">⚀</div>
+  <button onclick="roll()">ふる！</button><br><br>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+
+<script>
+function roll() {
+  const faces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
+  document.getElementById('dice').textContent = faces[Math.floor(Math.random() * 6)];
+}
+</script>
+</body>
+</html>
