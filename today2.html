@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>📚 自学ネタ1000（フィルター付き） - ひまつぶしと学びの庭</title>
+<style>
+  :root{--bg:#fffef8;--card:#fff;--accent:#4a90e2;--muted:#666;}
+  body{font-family:"Noto Sans JP",system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:18px;color:#222;}
+  header{background:#ffd54f;padding:12px;border-radius:8px;text-align:center;font-weight:800;margin-bottom:12px;}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;}
+  select,input{padding:8px;border-radius:8px;border:1px solid #ddd;font-size:0.95rem;}
+  button{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;}
+  .meta{margin-left:auto;color:var(--muted);font-size:0.95rem;}
+  .wrap{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .list-wrap{max-width:1100px;margin:0 auto;}
+  ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;}
+  li.item{background:var(--card);padding:10px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.04);line-height:1.45;}
+  .tag{display:inline-block;background:#f0f7ff;color:#0366d6;padding:4px 8px;border-radius:8px;font-weight:700;margin-right:8px;font-size:0.85rem;}
+  .time{display:inline-block;background:#f7f7f7;color:#444;padding:4px 8px;border-radius:8px;font-size:0.85rem;}
+  .title{margin-top:6px;font-weight:700;}
+  .hint{margin-top:6px;color:var(--muted);font-size:0.9rem;}
+  .footer{margin-top:14px;text-align:center;color:var(--muted);}
+  @media (max-width:600px){ .controls{flex-direction:column;align-items:stretch;} .meta{margin-left:0;} ul{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));} }
+</style>
+</head>
+<body>
+<header>📚 自学ネタ1000（フィルター付き） — ひまつぶしと学びの庭</header>
+
+<div class="controls">
+  <div class="wrap">
+    <label>ジャンル：</label>
+    <select id="genreFilter"><option value="all">すべて</option></select>
+  </div>
+
+  <div class="wrap">
+    <label>所要時間：</label>
+    <select id="timeFilter"><option value="all">すべて</option></select>
+  </div>
+
+  <div class="wrap">
+    <label>キーワード検索：</label>
+    <input id="searchBox" placeholder="例：星、実験、英語..." />
+    <button id="clearBtn">クリア</button>
+  </div>
+
+  <div class="meta" id="metaInfo">表示中：<span id="shownCount">0</span> / 1000</div>
+</div>
+
+<div class="list-wrap">
+  <ul id="ideasList" aria-live="polite"></ul>
+</div>
+
+<div class="footer">※ ジャンルや時間は目安です。気に入ったものを自由にアレンジしてね！</div>
+
+<script>
+/*
+  仕組み：
+  - テンプレ配列から組み合わせで1000個生成
+  - ジャンルと時間は循環割当でバランスよく振る
+  - フィルター（ジャンル・時間）とキーワード検索で絞り込み
+*/
+
+// ジャンル候補（表示順で select に入る）
+const GENRES = ["理科","社会","国語","算数","英語","生活","図工","音楽","プログラミング","雑学"];
+
+// 時間目安候補（短め〜長めを用意）
+const TIMES = ["約5分","約10分","約15分","約20分","約30分"];
+
+// テンプレ（主題パターン）を多めに作る（組み合わせで多様化）
+const SUBJECTS = [
+  "身近な〇〇を観察して記録する",
+  "簡単な実験で〇〇の仕組みを確かめる",
+  "〇〇の歴史を調べて年表にする",
+  "〇〇の写真を集めて特徴をまとめる",
+  "〇〇の作り方を調べて実際に作ってみる",
+  "〇〇の言葉を10個覚えて例文を作る",
+  "〇〇のデータを集めてグラフにする",
+  "〇〇についてのミニプレゼンを作る",
+  "〇〇の違いを比較して表にまとめる",
+  "〇〇の読み物を読んで要約を書く",
+  "〇〇をテーマに短い物語を書く",
+  "〇〇の図解を作る",
+  "〇〇の実物を観察してスケッチする",
+  "〇〇の実験手順と結果をレポートにする",
+  "〇〇の英語表現をまとめて会話例を作る",
+  "〇〇に関するクイズを10問作る",
+  "〇〇についてインタビューして記事にする",
+  "〇〇の種類を5つ調べる",
+  "〇〇を5分で説明する練習をする",
+  "〇〇の工作をして工程を写真で残す"
+];
+
+// 置換ワード（〇〇に入る具体例） => ジャンルに合わせて使うとより自然に見える
+const SUBJECT_FILL = {
+  "理科": ["植物の葉","水の状態変化","月の観察","音の伝わり方","磁石の性質","電気の流れ"],
+  "社会": ["県の名産","歴史上の出来事","世界の祝日","有名な遺跡","地域の産業"],
+  "国語": ["好きな本の一節","ことわざ","漢字の成り立ち","詩の分析"],
+  "算数": ["図形の面積","割合の問題","時計の計算","速さの問題"],
+  "英語": ["自己紹介フレーズ","天気の表現","動物の名前","簡単な会話"],
+  "生活": ["節水のコツ","簡単レシピ","防災チェック","家の電力チェック"],
+  "図工": ["折り紙作品","コラージュ","スケッチ","模型作り"],
+  "音楽": ["リズム練習","楽器の歴史","簡単な旋律作り"],
+  "プログラミング": ["HTML自己紹介ページ","簡単な計算プログラム","ランダム詩生成"],
+  "雑学": ["世界の不思議な事実","食品のトリビア","記念日の由来"]
+};
+
+// ユニークに見える副文テンプレ
+const EXTRA = [
+  "結果を写真や図で記録しよう。",
+  "1分で要点をまとめられるようにしてみよう。",
+  "家の人に発表してフィードバックをもらおう。",
+  "3つのポイントに分けてノートにまとめよう。",
+  "表やグラフを必ず1つ作ることを目標にしよう。",
+  "安全に気をつけて実験を行おう。",
+  "英語でも短い説明を書いてみよう。",
+  "時間内（目安）に終わるように工夫してみよう。",
+  "地域の情報を調べて地域色を入れよう。",
+  "実際に作ったものを写真に残しておこう。"
+];
+
+// generate N ideas
+const N = 1000;
+const ideas = [];
+for(let i=0;i<N;i++){
+  // assign genre cyclically to balance distribution
+  const genre = GENRES[i % GENRES.length];
+  // pick a subject template
+  const subjTemplate = SUBJECTS[i % SUBJECTS.length];
+  // choose a fill word from SUBJECT_FILL[genre]
+  const fills = SUBJECT_FILL[genre] || ["テーマ"];
+  const fill = fills[(Math.floor(i/GENRES.length) + i) % fills.length];
+  // choose extra clause
+  const extra = EXTRA[(i*7) % EXTRA.length];
+  // build title by replacing 〇〇
+  const title = subjTemplate.replace("〇〇", fill);
+  // make small variations to avoid too repetitive strings
+  const variantIdx = (i % 5);
+  const variantSuffix = variantIdx === 0 ? "" : `（発展：${variantIdx}）`;
+  const full = `${title}${variantSuffix} — ${extra}`;
+  ideas.push({text: full, genre});
+}
+
+// assign times cycling but biased by complexity (some genres longer)
+function timeForGenre(g, idx){
+  const base = idx % TIMES.length;
+  // bias: プログラミング・図工はやや長め、雑学・英語は短め
+  if(g==="プログラミング" || g==="図工") return TIMES[(base+2) % TIMES.length];
+  if(g==="雑学" || g==="英語") return TIMES[(base) % TIMES.length];
+  return TIMES[(base+1) % TIMES.length];
+}
+
+// populate select options
+const genreFilter = document.getElementById("genreFilter");
+GENRES.forEach(g=>{
+  const opt = document.createElement("option");
+  opt.value = g; opt.textContent = g;
+  genreFilter.appendChild(opt);
+});
+const timeFilter = document.getElementById("timeFilter");
+["約5分","約10分","約15分","約20分","約30分"].forEach(t=>{
+  const opt=document.createElement("option"); opt.value=t; opt.textContent=t; timeFilter.appendChild(opt);
+});
+
+// render list
+const listEl = document.getElementById("ideasList");
+const rendered = []; // store elements
+ideas.forEach((it, idx)=>{
+  const li = document.createElement("li");
+  li.className = "item";
+  const time = timeForGenre(it.genre, idx);
+  li.dataset.genre = it.genre;
+  li.dataset.time = time;
+  li.innerHTML = `<div><span class="tag">${it.genre}</span><span class="time">${time}</span></div>
+    <div class="title">${it.text}</div>`;
+  listEl.appendChild(li);
+  rendered.push(li);
+});
+
+// filter & search logic
+const searchBox = document.getElementById("searchBox");
+const clearBtn = document.getElementById("clearBtn");
+const shownCount = document.getElementById("shownCount");
+
+function updateMeta(){
+  const visible = rendered.filter(el => el.style.display !== "none").length;
+  shownCount.textContent = visible;
+}
+
+function filterList(){
+  const g = genreFilter.value;
+  const t = timeFilter.value;
+  const kw = (searchBox.value || "").trim().toLowerCase();
+  rendered.forEach(li=>{
+    const matchGenre = g === "all" || li.dataset.genre === g;
+    const matchTime = t === "all" || li.dataset.time === t;
+    const text = li.textContent.toLowerCase();
+    const matchSearch = !kw || text.includes(kw);
+    li.style.display = (matchGenre && matchTime && matchSearch) ? "" : "none";
+  });
+  updateMeta();
+}
+
+// init meta
+filterList();
+
+// events
+genreFilter.addEventListener("change", filterList);
+timeFilter.addEventListener("change", filterList);
+searchBox.addEventListener("input", filterList);
+clearBtn.addEventListener("click", ()=>{
+  genreFilter.value = "all";
+  timeFilter.value = "all";
+  searchBox.value = "";
+  filterList();
+});
+
+// keyboard: '/' to focus search
+document.addEventListener('keydown', (e)=>{
+  if(e.key === '/') { e.preventDefault(); searchBox.focus(); }
+});
+</script>
+</body>
+</html>
