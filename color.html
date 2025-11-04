@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🎨 カラー選択 - ひまつぶしと学びの庭</title>
+<style>
+body { font-family: "Noto Sans JP"; text-align: center; background: #f3e5f5; }
+h1 { color: #8e24aa; }
+#colorBox {
+  width: 150px; height: 150px; margin: 30px auto;
+  border-radius: 10px; border: 2px solid #555;
+}
+</style>
+</head>
+<body>
+  <h1>🎨 カラー選択ツール</h1>
+  <input type="color" id="picker" value="#ff0000" onchange="updateColor()"><br>
+  <div id="colorBox"></div>
+  <p id="colorCode">#ff0000</p>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+
+<script>
+function updateColor() {
+  const c = document.getElementById('picker').value;
+  document.getElementById('colorBox').style.background = c;
+  document.getElementById('colorCode').textContent = c;
+}
+updateColor();
+</script>
+</body>
+</html>
