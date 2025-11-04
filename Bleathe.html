@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🫁 呼吸エクササイズ - ひまつぶしと学びの庭</title>
+<style>
+  body{font-family:"Noto Sans JP",sans-serif;background:linear-gradient(135deg,#e8f6ef,#f3fff8);margin:0;display:flex;flex-direction:column;min-height:100vh;align-items:center;}
+  header{width:100%;background:#60a36f;color:white;padding:14px 0;text-align:center;font-size:1.4rem;font-weight:700;}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;width:100%;max-width:720px;}
+  #circle{width:160px;height:160px;border-radius:50%;background:#81d4fa;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#044;transition:transform 3s cubic-bezier(.4,0,.2,1);box-shadow:0 8px 20px rgba(0,0,0,0.12);}
+  .controls{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  button{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;background:white;box-shadow:0 2px 6px rgba(0,0,0,0.12);font-weight:700;}
+  label{font-size:0.9rem;margin-left:8px;}
+  footer{width:100%;text-align:center;background:#e8f6ef;padding:10px;color:#2e7d32;}
+</style>
+</head>
+<body>
+<header>🫁 呼吸エクササイズ — ひまつぶしと学びの庭</header>
+<main>
+  <div id="circle">リラックス</div>
+  <p id="phase" style="margin-top:14px;font-weight:700;">まだ始まってないよ</p>
+
+  <div class="controls">
+    <div>
+      <label>サイクル：</label>
+      <select id="mode">
+        <option value="box">ボックス呼吸(4-4-4-4)</option>
+        <option value="4-6-8">4秒吸う→6秒止める→8秒吐く</option>
+        <option value="custom">カスタム</option>
+      </select>
+    </div>
+
+    <div id="customArea" style="display:none">
+      <input id="inhale" type="number" value="4" min="1" style="width:52px">s 吸う
+      <input id="hold1" type="number" value="4" min="0" style="width:52px">s 止め
+      <input id="exhale" type="number" value="4" min="1" style="width:52px">s 吐く
+      <input id="hold2" type="number" value="4" min="0" style="width:52px">s 止め
+    </div>
+
+    <button id="start">▶ スタート</button>
+    <button id="stop">⏹ ストップ</button>
+    <button id="back" onclick="location.href='index.html'">🏡 メニューへ戻る</button>
+  </div>
+
+  <p style="margin-top:12px;font-size:0.9rem;color:#345;">※ 深呼吸は気分を落ち着ける手助けになります（参考：公的な保健情報など）。</p>
+</main>
+<footer>© ひまつぶしと学びの庭</footer>
+
+<script>
+const circle = document.getElementById('circle');
+const phase = document.getElementById('phase');
+const mode = document.getElementById('mode');
+const customArea = document.getElementById('customArea');
+const startBtn = document.getElementById('start');
+const stopBtn = document.getElementById('stop');
+
+let timer=null, sequence=[], idx=0;
+
+mode.addEventListener('change', ()=>{
+  customArea.style.display = mode.value==='custom' ? 'block' : 'none';
+});
+
+function buildSequence(){
+  if(mode.value==='box'){
+    return [{name:'吸う',t:4,scale:1.6},{name:'止め',t:4,scale:1.6},{name:'吐く',t:4,scale:1.0},{name:'止め',t:4,scale:1.0}];
+  } else if(mode.value==='4-6-8'){
+    return [{name:'吸う',t:4,scale:1.5},{name:'止め',t:6,scale:1.5},{name:'吐く',t:8,scale:1.0}];
+  } else {
+    const inh = Math.max(1,parseInt(document.getElementById('inhale').value||4));
+    const h1 = Math.max(0,parseInt(document.getElementById('hold1').value||0));
+    const exh = Math.max(1,parseInt(document.getElementById('exhale').value||4));
+    const h2 = Math.max(0,parseInt(document.getElementById('hold2').value||0));
+    const seq=[];
+    seq.push({name:'吸う',t:inh,scale:1.6});
+    if(h1>0) seq.push({name:'止め',t:h1,scale:1.6});
+    seq.push({name:'吐く',t:exh,scale:1.0});
+    if(h2>0) seq.push({name:'止め',t:h2,scale:1.0});
+    return seq;
+  }
+}
+
+function tick(){
+  if(sequence.length===0) return;
+  const step = sequence[idx % sequence.length];
+  phase.textContent = step.name + ' — ' + step.t + '秒';
+  // circle scale animation
+  circle.style.transform = 'scale(' + step.scale + ')';
+  // audible cue (short beep) — try to play if allowed
+  try {
+    const o = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+    o.play().catch(()=>{});
+  } catch(e){}
+  const wait = step.t * 1000;
+  idx++;
+  timer = setTimeout(tick, wait);
+}
+
+startBtn.addEventListener('click', ()=>{
+  clearTimeout(timer);
+  sequence = buildSequence();
+  idx = 0;
+  tick();
+});
+
+stopBtn.addEventListener('click', ()=>{
+  clearTimeout(timer);
+  phase.textContent = '停止中';
+  circle.style.transform = 'scale(1)';
+});
+</script>
+</body>
+</html>
