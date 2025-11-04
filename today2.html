@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📅 今日は何の日？ - ひまつぶしと学びの庭</title>
+<style>
+  body{font-family:"Noto Sans JP",sans-serif;background:linear-gradient(180deg,#fff,#f7fbff);margin:0;display:flex;flex-direction:column;min-height:100vh;align-items:center;}
+  header{width:100%;background:#4a90e2;color:white;padding:12px;text-align:center;font-weight:700;}
+  main{flex:1;width:100%;max-width:900px;padding:18px;}
+  .card{background:white;padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:12px;}
+  .sources{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+  a.button{display:inline-block;padding:8px 12px;border-radius:8px;background:#eef6ff;color:#0366d6;text-decoration:none;font-weight:700;border:1px solid #d6eaff;}
+</style>
+</head>
+<body>
+<header>📅 今日は何の日？ — ひまつぶしと学びの庭</header>
+<main>
+  <div id="todayCard" class="card">読み込み中…</div>
+  <div id="results"></div>
+  <div style="margin-top:10px;">
+    <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+  </div>
+</main>
+
+<script>
+async function fetchJSON(url){
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const ct = r.headers.get('content-type') || '';
+    if(ct.includes('application/json')) return await r.json();
+    return await r.text();
+  } catch(e){
+    console.warn('fetch failed', url, e);
+    return null;
+  }
+}
+
+async function loadToday(){
+  const now = new Date();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  document.getElementById('todayCard').textContent = `今日：${m}月${d}日（自動取得） — 外部ソースから「今日は何の日」をまとめます。`;
+
+  const sources = []; // {title, url, snippet}
+
+  // 1) Wikipedia REST On This Day (try)
+  const wikiUrl = `https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${m}/${d}`;
+  const wikiData = await fetchJSON(wikiUrl);
+  if(wikiData && wikiData.events && wikiData.events.length){
+    let snippet = wikiData.events.slice(0,3).map(ev=>{
+      const year = ev.year;
+      const desc = ev.text ? ev.text : (ev.pages && ev.pages[0] && ev.pages[0].extract ? ev.pages[0].extract : '');
+      return `${year} — ${desc}`;
+    }).join('\n\n');
+    sources.push({title:'Wikipedia — On this day (en)', url:wikiUrl, snippet});
+  }
+
+  // 2) History.MuffinLabs (simple API)
+  const muffinUrl = `https://history.muffinlabs.com/date/${m}/${d}`;
+  const muffinData = await fetchJSON(muffinUrl);
+  if(muffinData && muffinData.data && muffinData.data.Events && muffinData.data.Events.length){
+    const snippet = muffinData.data.Events.slice(0,3).map(ev=>`${ev.year} — ${ev.text}`).join('\n\n');
+    sources.push({title:'History - muffinlabs (on this day)', url:muffinUrl, snippet});
+  }
+
+  // 3) timeanddate on-this-day (fetch page as fallback)
+  const timeUrl = `https://www.timeanddate.com/on-this-day/${m}-${d}`;
+  const timeText = await fetchJSON(timeUrl);
+  if(timeText){
+    sources.push({title:'timeanddate — On this day', url:timeUrl, snippet:'(ページが取得できました。主要出来事を参照してください。)'});
+  }
+
+  // 4) 日本の「今日は何の日」サイト（例: kids.yahoo / netlab）
+  const jpUrl = `https://kids.yahoo.co.jp/today/${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`;
+  const jpText = await fetchJSON(jpUrl);
+  if(jpText){
+    sources.push({title:'Yahoo!きっず — 今日は何の日', url:jpUrl, snippet:'(日本語の記念日・出来事のまとめページ)'});
+  }
+
+  // If none fetched, provide search fallback
+  if(sources.length === 0){
+    const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(m+'月'+d+'日 今日は何の日')}`;
+    document.getElementById('results').innerHTML = `
+      <div class="card">
+        外部サイトの取得に失敗したか、CORS の制限がかかっています。<br>
+        下の検索リンクを試してね：<br><a class="button" href="${googleSearch}" target="_blank" rel="noopener">🔍 Google 検索で調べる</a>
+      </div>`;
+    return;
+  }
+
+  // show top 3 sources (先に取得できた順)
+  const top = sources.slice(0,3);
+  const out = document.getElementById('results');
+  out.innerHTML = '';
+  top.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<div style="font-weight:800">${i+1}. ${s.title}</div>
+      <div style="white-space:pre-wrap;margin-top:8px;font-size:0.95rem;color:#333">${s.snippet || '(抜粋なし)'}</div>
+      <div style="margin-top:8px;">
+        <a class="button" href="${s.url}" target="_blank" rel="noopener">🔗 ソースを開く</a>
+      </div>`;
+    out.appendChild(div);
+  });
+
+  // さらに「自学ネタ100個」へのリンク
+  const studyCard = document.createElement('div');
+  studyCard.className='card';
+  studyCard.innerHTML = `<div style="font-weight:800">自学ネタ（まとめ）</div>
+    <div style="margin-top:8px;">自学アイデアを 100 個まとめたページがあります → <a class="button" href="study.html">自学ネタ100</a></div>`;
+  out.appendChild(studyCard);
+}
+
+loadToday();
+</script>
+</body>
+</html>
