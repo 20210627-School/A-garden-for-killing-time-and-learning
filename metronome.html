@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🎵 メトロノーム - ひまつぶしと学びの庭</title>
+<style>
+body { text-align: center; font-family: "Noto Sans JP"; background: #e1f5fe; }
+h1 { color: #0288d1; }
+input { width: 60px; text-align: center; }
+button {
+  background: white; border: none; border-radius: 10px;
+  padding: 10px 20px; margin: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+  <h1>🎵 メトロノーム</h1>
+  <p>BPM：<input id="bpm" type="number" value="100" min="40" max="240"> </p>
+  <button onclick="start()">▶ スタート</button>
+  <button onclick="stop()">⏹ ストップ</button>
+  <p id="tick"></p>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+
+<script>
+let interval;
+function start() {
+  stop();
+  const bpm = parseInt(document.getElementById('bpm').value);
+  const ms = 60000 / bpm;
+  interval = setInterval(() => {
+    document.getElementById('tick').textContent = "🟢";
+    new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
+    setTimeout(() => document.getElementById('tick').textContent = "", 100);
+  }, ms);
+}
+function stop() {
+  clearInterval(interval);
+  document.getElementById('tick').textContent = "";
+}
+</script>
+</body>
+</html>
