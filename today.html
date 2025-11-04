@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>📅 今日は何の日？ - ひまつぶしと学びの庭</title>
+<style>
+body { text-align: center; font-family: "Noto Sans JP"; background: #fff9c4; }
+#info {
+  margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px;
+  max-width: 500px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+  <h1>📅 今日は何の日？</h1>
+  <div id="info"></div>
+  <button onclick="location.href='index.html'">🏡 メニューに戻る</button>
+<script>
+const data={
+  "1-1":"元日🎍",
+  "2-14":"バレンタインデー🍫",
+  "3-3":"ひなまつり🎎",
+  "4-1":"エイプリルフール😆",
+  "5-5":"こどもの日🎏",
+  "7-7":"七夕🎋",
+  "10-31":"ハロウィン🎃",
+  "12-25":"クリスマス🎄"
+};
+const now=new Date();
+const key=(now.getMonth()+1)+"-"+now.getDate();
+document.getElementById("info").textContent=data[key]||"特別な日ではないけど、良い一日を！🌸";
+</script>
+</body>
+</html>
